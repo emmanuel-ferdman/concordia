@@ -20,6 +20,8 @@ from typing import Any
 
 from concordia.typing import entity_component
 from concordia.typing import memory as memory_lib
+import pandas as pd
+
 
 DEFAULT_MEMORY_COMPONENT_NAME = '__memory__'
 
@@ -56,6 +58,14 @@ class MemoryComponent(entity_component.ContextComponent):
       raise ValueError(
           'You can only access the memory outside of the `UPDATE` phase.'
       )
+
+  def get_state(self) -> Mapping[str, Any]:
+    with self._lock:
+      return self._memory.get_state()
+
+  def set_state(self, state: Mapping[str, Any]) -> None:
+    with self._lock:
+      self._memory.set_state(state)
 
   def retrieve(
       self,
@@ -102,3 +112,22 @@ class MemoryComponent(entity_component.ContextComponent):
       for mem in self._buffer:
         self._memory.add(mem['text'], mem['metadata'])
       self._buffer = []
+
+  def get_raw_memory(self) -> pd.DataFrame:
+    """Returns the raw memory as a pandas dataframe."""
+    self._check_phase()
+    with self._lock:
+      return self._memory.get_data_frame()
+
+  def get_all_memories_as_text(
+      self,
+      add_time: bool = True,
+      sort_by_time: bool = True,
+  ) -> Sequence[str]:
+    """Returns all memories in the memory bank as a sequence of strings."""
+    self._check_phase()
+    with self._lock:
+      texts = self._memory.get_all_memories_as_text(
+          add_time=add_time,
+          sort_by_time=sort_by_time)
+      return texts

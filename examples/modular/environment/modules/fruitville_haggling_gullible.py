@@ -117,8 +117,13 @@ def sample_parameters(seed: int | None = None):
       premise=SCENARIO_PREMISE,
       scene_visuals=VISUAL_SCENE_OPENINGS,
       random_seed=seed,
+      num_supporting_players=1,
+      num_main_players=1,
+      num_games=3,
+      buyer_base_reward_min=6,
+      seller_base_reward_max=1,
+      only_match_with_support=True,
   )
-
   all_names = list(MALE_NAMES) + list(FEMALE_NAMES)
   rng = random.Random(config.random_seed)
   rng.shuffle(all_names)

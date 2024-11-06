@@ -19,6 +19,9 @@ from collections.abc import Mapping, Sequence
 import dataclasses
 from typing import Any, Protocol
 
+from concordia.typing import entity_component
+import pandas as pd
+
 
 class MemoryScorer(Protocol):
   """Typing definition for a memory scorer function."""
@@ -73,6 +76,69 @@ class MemoryBank(metaclass=abc.ABCMeta):
     """
     for text in texts:
       self.add(text, metadata)
+
+  @abc.abstractmethod
+  def get_data_frame(self) -> pd.DataFrame:
+    """Returns the memory bank as a pandas dataframe."""
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def get_all_memories_as_text(
+      self,
+      add_time: bool,
+      sort_by_time: bool) -> Sequence[str]:
+    """Returns the memory bank as a sequence of strings.
+    
+    Args:
+      add_time: Whether to add the time stamp to the memory.
+      sort_by_time: Whether to sort the memories by time.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def get_state(self) -> entity_component.ComponentState:
+    """Returns the state of the memory bank.
+    
+    See `set_state` for details. The default implementation returns an empty
+    dictionary.
+    """
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def set_state(self, state: entity_component.ComponentState) -> None:
+    """Sets the state of the memory bank.
+    
+    This is used to restore the state of the memory bank. The state is assumed 
+    to be the one returned by `get_state`.
+    The state does not need to contain any information that is passed in the 
+    initialization of the memory bank (e.g. embedder, clock, imporance etc.)
+    It is assumed that set_state is called on the memory bank after it was 
+    initialized with the same parameters as the one used to restore it.
+    The default implementation does nothing, which implies that the memory bank
+    does not have any state.
+
+    Example (Creating a copy):
+      obj1 = MemoryBank(**kwargs)
+      state = obj.get_state()
+      obj2 = MemoryBank(**kwargs)
+      obj2.set_state(state)
+      # obj1 and obj2 will behave identically.
+
+    Example (Restoring previous behavior):
+      obj = MemoryBank(**kwargs)
+      state = obj.get_state()
+      # do more with obj
+      obj.set_state(state)
+      # obj will now behave the same as it did before.
+    
+    Note that the state does not need to contain any information that is passed
+    in __init__ (e.g. the embedder, clock, imporance etc.)
+
+    Args:
+      state: The state of the memory bank.
+    """
+
+    raise NotImplementedError()
 
   @abc.abstractmethod
   def retrieve(

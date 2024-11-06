@@ -39,18 +39,18 @@ _RETURN_HOME_TIME = datetime.datetime(hour=20, year=1750, month=1, day=4)
 _DECISION_TIME = datetime.datetime(hour=20, year=1750, month=5, day=6)
 _DEBRIEF_TIME = datetime.datetime(hour=20, year=1750, month=12, day=31)
 
-_DEFENSE_THRESHOLD = 0.3
-_STARVATION_THRESHOLD = 0.4
+_DEFENSE_THRESHOLD = 0.25
+_STARVATION_THRESHOLD = 0.1
 
 _MIN_YEARS = 2
 _MAX_YEARS = 3
 
 _NUM_SUPPORTING_CHARACTERS_PER_VILLAGE = 2
-_NUM_RITUAL_DESCRIPTIONS = 4
-_NUM_PERCEPTIONS = 3
+_NUM_RITUAL_DESCRIPTIONS = 3
+_NUM_PERCEPTIONS = 2
 _NUM_LEADER_SAYINGS = 3
 _NUM_COLLECTIVE_UNCONSCIOUS_ELEMENTS = 1
-_NUM_SHARED_EPIC_POEM_ELEMENTS = 6
+_NUM_SHARED_EPIC_POEM_ELEMENTS = 2
 _NUM_BARBARIAN_RUMORS = 5
 
 VILLAGES = {'a': {}, 'b': {}}
@@ -1794,7 +1794,7 @@ def sample_parameters(
     seed: int | None = None,
 ):
   """Returns a config dict for the simulation."""
-  seed = seed or random.getrandbits(63)
+  seed = seed if seed is not None else random.getrandbits(63)
   rng = random.Random(seed)
   shuffled_village_names = list(
       rng.sample(VILLAGE_NAMES, len(VILLAGE_NAMES))
